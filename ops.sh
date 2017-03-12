@@ -1,131 +1,122 @@
 # This module contains all utility functions for
 # sys admin activities
 
-function tailf(){
-    tail -f $@ | perl -pe 's/(ERROR)/\e[1;31m$1\e[0m/gi;s/(INFO)/\e[1;32m$1\e[0m/gi;s/(DEBUG)/\e[1;32m$1\e[0m/gi;s/(WARN)/\e[1;33m$1\e[0m/gi'
+function pscmd() {
+    ps aux
 }
 
+function pssortcmd() {
+    local sortcolumn=$1
 
-function memmost(){
+    local ps_out=$(pscmd)
+    echo "$ps_out" | head -n 1
+    echo "$ps_out" | sort -nr -k $sortcolumn
+}
+
+function psmemmost() {
     # $1: number of process to view (default 10).
     local num=$1
-    [ "$num" == "" ] && num="10"
+    [[ -z "$num" ]] && num="10"
 
-    local ps_out=$(ps -auxf)
+    local ps_out=$(pssortcmd 4)
     echo "$ps_out" | head -n 1
-    echo "$ps_out" | sort -nr -k 4 | head -n $num
+    echo "$ps_out" | tail -n +2 | head -n $num
 }
 
-
-function cpumost(){
+function pscpumost() {
     # $1: number of process to view (default 10).
-
     local num=$1
-    [ "$num" == "" ] && num="10"
+    [[ -z "$num" ]] && num="10"
 
-    local ps_out=$(ps -auxf)
+    local ps_out=$(pssortcmd 3)
     echo "$ps_out" | head -n 1
-    echo "$ps_out" | sort -nr -k 3 | head -n $num
+    echo "$ps_out" | tail -n +2 | head -n $num
 }
 
-function allbusy(){
-
-    local ps_out=$(ps auxf)
-    echo "$ps_out" | head -n 1
-    echo "$ps_out" | awk '($8~/.*D.*/){print $0}'
-}
-
-function allzombies(){
-
-    local ps_out=$(ps auxf)
-    echo "$ps_out" | head -n 1
-    echo "$ps_out" | awk '($8~/.*Z.*/){print $0}'
-}
-
-function allrunning(){
-
-    local ps_out=$(ps auxf)
-    echo "$ps_out" | head -n 1
-    echo "$ps_out" | awk '($8~/.*R.*/){print $0}'
-}
-
-function cpugt(){
+function pscpugt() {
     # $1: percentage of cpu. Default 90%
 
     local perc=$1
     [ "$perc" == "" ] && perc="90"
 
-    local ps_out=$(ps -auxf)
+    local ps_out=$(pssortcmd 3)
     echo "$ps_out" | head -n 1
-    echo "$ps_out" | sort -nr -k 3 | awk -v "q=$perc" '($3>=q){print $0}'
+    echo "$ps_out" | tail -n +2 | awk -v "q=$perc" '($3>=q){print $0}'
 }
 
-function memgt(){
+function psmemgt() {
     # $1: percentage of memory. Default 90%
 
     local perc=$1
     [ "$perc" == "" ] && perc="90"
 
-    local ps_out=$(ps -auxf)
+    local ps_out=$(pssortcmd 4)
     echo "$ps_out" | head -n 1
-    echo "$ps_out" | sort -nr -k 4 | awk -v "q=$perc" '($4>=q){print $0}'
+    echo "$ps_out" | tail -n +2 | awk -v "q=$perc" '($4>=q){print $0}'
 }
 
-function repeat(){
-    # $@ the command to be repeated
-    while [ 1 ]
-    do
-        eval $@
-        sleep 1
-    done
+function pssleepy() {
+    # Shows all process that are:
+    # -   D    uninterruptible sleep (usually IO)
+    # -   S    interruptible sleep (waiting for an event to complete)
+    local ps_out=$(pscmd)
+    echo "$ps_out" | head -n 1
+    echo "$ps_out" | awk '($8~/.*[DS].*/){print $0}'
 }
 
-function touser(){
+function pszombies(){
+    local ps_out=$(pscmd)
+    echo "$ps_out" | head -n 1
+    echo "$ps_out" | awk '($8~/.*Z.*/){print $0}'
+}
+
+function psrunning(){
+    local ps_out=$(pscmd)
+    echo "$ps_out" | head -n 1
+    echo "$ps_out" | awk '($8~/.*R.*/){print $0}'
+}
+
+function psofuser(){
     # $1: name of the user
     ps -U $1 -u $1 u
 }
 
-
-function frompid(){
+function psfrompid(){
     # $1: PID of the process
     ps -p $1 -o comm=
 }
 
-
-function topid(){
+function pstopid(){
     # $1: name of the process
     ps -C $1 -o pid=
 }
 
+function repeat(){
+    # $@ the command to be repeated
+    while true
+    do
+        $@
+    done
+}
 
-function is_file_open() {
+function isopen() {
     lsof | grep $(readlink -f "$1")
 }
 
-
 function notabs() {
-    # Replace tabs by 4 spaces & remove trailing ones & spaces
-    for f in $(findTxt "$@"); do
+    # Replace tabs by 4 spaces & remove trailing spaces
+    local files=$@
+    for f in $files
+    do
         sed -i -e 's/[	 ]*$//g' "$f"
         sed -i -e 's/	/    /g' "$f"
     done
 }
 
-
-function findTxt() {            # Find only text files
-    find "$@" -type f -exec file {} \; | grep text | cut -d':' -f1
+function tailim() {
+    tail $@ | perl -pe 's/(ERROR)/\e[1;31m$1\e[0m/gi;s/(INFO)/\e[1;32m$1\e[0m/gi;s/(DEBUG)/\e[1;32m$1\e[0m/gi;s/(WARN)/\e[1;33m$1\e[0m/gi'
 }
 
-
-function kill_cmd(){
-    # WIP - Kill every process starting with the pattern passed as a parameter
-    while true; do
-        pid=$(ps -eo pid,args | egrep -e "[0-9]* /bin/bash $1" | grep -v grep | grep -o '[0-9]*')
-        echo "Killing $(ps -eo pid,args | egrep -e "[0-9]* /bin/bash $1" | grep -v grep)"
-        if [ -n "$pid" ]; then
-            kill "$pid"
-        else
-            break
-        fi
-    done
+function whicharch() {
+    getconf LONG_BIT
 }
