@@ -1,0 +1,8 @@
+function frompid(){
+    # $1: PID of the process
+    ps -p $1 -o comm=
+}
+
+frompid $1
+
+# vim: ft=sh

@@ -1,0 +1,6 @@
+while true
+do
+    $@
+done
+
+# vim: ft=sh

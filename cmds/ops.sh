@@ -1,32 +1,7 @@
-# This module contains all utility functions for
-# sys admin activities
-
-function pscmd() {
-    ps aux
-}
-
-function pssortcmd() {
-    local sortcolumn=$1
-
-    local ps_out=$(pscmd)
-    echo "$ps_out" | head -n 1
-    echo "$ps_out" | sort -nr -k $sortcolumn
-}
-
-function psmemmost() {
-    # $1: number of process to view (default 10).
-    local num=$1
-    [[ -z "$num" ]] && num="10"
-
-    local ps_out=$(pssortcmd 4)
-    echo "$ps_out" | head -n 1
-    echo "$ps_out" | tail -n +2 | head -n $num
-}
 
 function pscpumost() {
     # $1: number of process to view (default 10).
-    local num=$1
-    [[ -z "$num" ]] && num="10"
+    local num=${1:-10}
 
     local ps_out=$(pssortcmd 3)
     echo "$ps_out" | head -n 1
@@ -36,8 +11,7 @@ function pscpumost() {
 function pscpugt() {
     # $1: percentage of cpu. Default 90%
 
-    local perc=$1
-    [ "$perc" == "" ] && perc="90"
+    local perc=${1:-90}
 
     local ps_out=$(pssortcmd 3)
     echo "$ps_out" | head -n 1
@@ -47,8 +21,7 @@ function pscpugt() {
 function psmemgt() {
     # $1: percentage of memory. Default 90%
 
-    local perc=$1
-    [ "$perc" == "" ] && perc="90"
+    local perc=${1:-90}
 
     local ps_out=$(pssortcmd 4)
     echo "$ps_out" | head -n 1
@@ -79,24 +52,6 @@ function psrunning(){
 function psofuser(){
     # $1: name of the user
     ps -U $1 -u $1 u
-}
-
-function psfrompid(){
-    # $1: PID of the process
-    ps -p $1 -o comm=
-}
-
-function pstopid(){
-    # $1: name of the process
-    ps -C $1 -o pid=
-}
-
-function repeat(){
-    # $@ the command to be repeated
-    while true
-    do
-        $@
-    done
 }
 
 function isopen() {
@@ -179,4 +134,23 @@ function logat(){
 #######################################
 function logatnow(){
     logat now $@
+}
+
+#######################################
+# Make and change directory.
+# Only one argument can be passed to the function.
+#
+# Globals:
+#   None
+# Arguments:
+#   dir_path ($1):      The directory path
+# Returns:
+#   1                   More than one argument is passed to the function
+# Output:
+#   None
+#######################################
+function mcdir() {
+    [[ "${#}" -ne 1 ]] && { echo "Error: Only one argument is required"; return 1; }
+    mkdir -p "$1"
+    cd "$1"
 }

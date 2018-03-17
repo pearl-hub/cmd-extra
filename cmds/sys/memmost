@@ -1,0 +1,13 @@
+
+function memmost() {
+    # $1: number of process to view (default 10).
+    local num=${1:-10}
+
+    local ps_out=$(bash $(dirname $CMD_SCRIPT_FILE)/pssort 4)
+    echo "$ps_out" | head -n 1
+    echo "$ps_out" | tail -n +2 | head -n $num
+}
+
+memmost $1
+
+# vim: ft=sh

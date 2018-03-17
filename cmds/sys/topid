@@ -1,0 +1,9 @@
+
+function topid(){
+    # $1: name of the process
+    ps -C $1 -o pid=
+}
+
+topid $1
+
+# vim: ft=sh
