@@ -1,0 +1,7 @@
+
+function procuser(){
+    # $1: name of the user
+    ps -U $1 -u $1 u
+}
+
+procuser "$@"

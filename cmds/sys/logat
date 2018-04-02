@@ -1,0 +1,65 @@
+when=${when:-now}
+
+#######################################
+# Search for files that match for a given date pattern.
+#
+# Example:
+#     >> logat "2 hours ago" myservice.log.*
+#     myservice.log.2017-03-28-10.gz
+#
+# To change the log pattern:
+#     >> LOG_PATTERN="%Y-%m-%d-%H%M%S" logat "yesterday" *
+#     myservice.log.2017-03-27-103112.gz
+#     myapp.log.2017-03-27-103320.gz
+#
+# Globals:
+#   LOG_PATTERN (RW):    The pattern for the date in the filename (default: "%Y-%m-%d-%H")
+# Arguments:
+#   when ($1):           The relative date and time (more info `man date`)
+#   logfiles ($2-):      The file list
+# Returns:
+#   None
+# Output:
+#   The file list matching the pattern
+#######################################
+function logat(){
+    local log_pattern=${LOG_PATTERN:-"%Y-%m-%d-%H"}
+    local when=$1
+    local pattern=$(date --date="$when" +$log_pattern)
+    shift
+    local logfiles=$@
+
+    for logfile in ${logfiles}
+    do
+        [[ ${logfile} =~ .*${pattern}.* ]] && echo "${logfile}"
+    done
+}
+
+#######################################
+# Search for files that match for the "now" date.
+#
+# Example:
+#     >> logatnow myservice.log.*
+#     myservice.log.2017-03-28-12.gz
+#
+# To change the log pattern:
+#     >> LOG_PATTERN="%Y-%m-%d-%H%M%S" logatnow *
+#     myservice.log.2017-03-27-103112.gz
+#     myapp.log.2017-03-27-103320.gz
+#
+# Globals:
+#   LOG_PATTERN (RW):    The pattern for the date in the filename (default: "%Y-%m-%d-%H")
+# Arguments:
+#   logfiles ($@):       The file list
+# Returns:
+#   None
+# Output:
+#   The file list matching the pattern
+#######################################
+function logatnow(){
+    logat now "$@"
+}
+
+logat $when "$@"
+
+# vim: ft=sh

@@ -1,0 +1,25 @@
+stat=${stat:-running}
+
+function sleepy() {
+    # Shows all process that are:
+    # -   D    uninterruptible sleep (usually IO)
+    # -   S    interruptible sleep (waiting for an event to complete)
+    ps aux | head -n 1
+    ps aux --no-headers | awk '($8~/.*[DS].*/){print $0}'
+}
+
+function zombies(){
+    ps aux | head -n 1
+    ps aux --no-headers | awk '($8~/.*Z.*/){print $0}'
+}
+
+function running(){
+    ps aux | head -n 1
+    ps aux --no-headers | awk '($8~/.*R.*/){print $0}'
+}
+
+[[ $stat == "sleepy" ]] && sleepy
+[[ $stat == "zombies" ]] && zombies
+[[ $stat == "running" ]] && running
+
+# vim: ft=sh

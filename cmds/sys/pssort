@@ -1,13 +1,10 @@
-function pscmd() {
-    ps aux
-}
-
-function pssortcmd() {
+function pssort() {
     local sortcolumn=$1
 
-    local ps_out=$(pscmd)
-    echo "$ps_out" | head -n 1
-    echo "$ps_out" | sort -nr -k $sortcolumn
+    ps aux | head -n 1
+    ps aux --no-headers | sort -nr -k $sortcolumn
 }
 
+
+pssort "$@"
 # vim: ft=sh

@@ -1,0 +1,13 @@
+function notabs() {
+    # Replace tabs by 4 spaces & remove trailing spaces
+    local files=$@
+    for f in $files
+    do
+        sed -i -e 's/[	 ]*$//g' "$f"
+        sed -i -e 's/	/    /g' "$f"
+    done
+}
+
+notabs "$@"
+
+# vim: ft=sh

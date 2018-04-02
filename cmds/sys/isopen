@@ -1,0 +1,8 @@
+
+function isopen() {
+    lsof | grep $(readlink -f "$1")
+}
+
+isopen "$@"
+
+# vim: ft=sh
