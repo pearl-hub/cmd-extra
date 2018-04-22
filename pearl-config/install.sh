@@ -4,10 +4,11 @@ function post_install(){
     local cmd_vardir=${CMD_VARDIR:-$PEARL_HOME/var/$PEARL_PKGREPONAME/cmd}
     mkdir -p $cmd_vardir/bin
 
-    for file in $PEARL_PKGDIR/cmds/*/*
+    cd $PEARL_PKGDIR/cmds
+    for alias in */*
     do
-        filename="$(basename $file)"
-        link_to "$file" "$cmd_vardir/bin/$filename"
+        filename="${alias//\//-}"
+        link_to "$PEARL_PKGDIR/cmds/$alias" "$cmd_vardir/bin/$filename"
     done
 
     info "cmd package is required for cmd-extra:"
@@ -15,6 +16,7 @@ function post_install(){
 }
 
 function post_update(){
+    pre_remove
     post_install
 }
 
@@ -22,9 +24,10 @@ function pre_remove(){
     # If `cmd` not installed fallback to the default CMD_VARDIR
     local cmd_vardir=${CMD_VARDIR:-$PEARL_HOME/var/$PEARL_PKGREPONAME/cmd}
 
-    for file in $PEARL_PKGDIR/cmds/*/*
+    cd $PEARL_PKGDIR/cmds
+    for alias in */*
     do
-        filename="$(basename $file)"
-        unlink_from "$file" "$cmd_vardir/bin/$filename"
+        filename="${alias//\//-}"
+        unlink_from "$PEARL_PKGDIR/cmds/$alias" "$cmd_vardir/bin/$filename"
     done
 }
