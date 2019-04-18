@@ -1,12 +1,4 @@
-
-function memmost() {
-    # $1: number of process to view (default 10).
-    local num=${1:-10}
-
-    ps aux | head -n 1
-    ps aux --no-headers | sort -nr -k 4
-}
-
-memmost $1
+ps aux | head -n 1
+ps aux --no-headers | sort -nr -k 4
 
 # vim: ft=sh

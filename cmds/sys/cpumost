@@ -1,13 +1,5 @@
 
-function cpumost() {
-    # $1: number of process to view (default 10).
-    local num=${1:-10}
-
-    ps aux | head -n 1
-    ps aux --no-headers | sort -nr -k 3
-}
-
-
-cpumost $1
+ps aux | head -n 1
+ps aux --no-headers | sort -nr -k 3
 
 # vim: ft=sh
