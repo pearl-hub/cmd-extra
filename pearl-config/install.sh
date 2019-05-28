@@ -15,8 +15,9 @@ function post_update(){
 }
 
 function pre_remove(){
-    # CMD_VARDIR should already be set at this point
-    cmd exclude "$PEARL_PKGDIR/cmds"
+    # CMD_VARDIR should already be set at this point.
+    # cmd might not be installed anymore, check if exists first
+    command -v cmd &> /dev/null && cmd exclude "$PEARL_PKGDIR/cmds"
 
     return 0
 }
