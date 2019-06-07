@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# From wttr.in/:bash.function
+wttr() {
+    local request="wttr.in/$@"
+    [[ "$COLUMNS" -lt 125 ]] && request+='?n'
+    curl -H "Accept-Language: ${LANG%_*}" --compressed "$request"
+}
+
+wttr "$@"
+
+
