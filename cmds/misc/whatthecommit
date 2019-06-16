@@ -1,0 +1,9 @@
+#!/bin/sh
+
+function whatthecommit() {
+    # https://github.com/lwe/whatthecommit/blob/master/README.md
+    curl --silent --fail https://whatthecommit.com/index.txt
+}
+
+
+whatthecommit
