@@ -1,5 +1,7 @@
-DEPENDS=("${PEARL_PKGREPONAME}/cmd")
+
 function post_install(){
+    pearl emerge ${PEARL_PKGREPONAME}/cmd
+
     # set CMD_VARDIR to make cmd command working
     export CMD_VARDIR="${PEARL_HOME}/var/${PEARL_PKGREPONAME}/cmd"
 
