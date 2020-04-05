@@ -1,4 +1,3 @@
-ps aux | head -n 1
-ps aux --no-headers | sort -nr -k 4
+ps aux --sort=-%mem
 
 # vim: ft=sh

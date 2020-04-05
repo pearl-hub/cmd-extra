@@ -1,5 +1,4 @@
 
-ps aux | head -n 1
-ps aux --no-headers | sort -nr -k 3
+ps aux --sort=-%cpu
 
 # vim: ft=sh
